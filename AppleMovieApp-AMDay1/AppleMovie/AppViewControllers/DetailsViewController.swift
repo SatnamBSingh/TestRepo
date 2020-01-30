@@ -13,11 +13,15 @@ class DetailsViewController: UIViewController {
     var getMoviesArrayData = [AppleMoviesData]()
     var movie:AppleMoviesData?
 
+    @IBOutlet weak var cancelbuttonoutlet: UIButton!
     @IBAction func cancelButton(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
         performSegue(withIdentifier: "Backsegue", sender: IndexPath.self)
     }
     
+    
+    @IBOutlet weak var movienamelabel: UILabel!
+    @IBOutlet weak var moviescateogrylbl: UILabel!
     @IBOutlet var movieimageview: UIImageView!
     @IBOutlet var languagelabel: UILabel!
     @IBOutlet var votecountlabel: UILabel!
@@ -25,11 +29,12 @@ class DetailsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        movienamelabel.text = movie!.title
         languagelabel.text = "\(movie!.popularity)"
         movieimageview.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + movie!.poster_path), placeholder: nil, options: [], progressBlock: nil, completionHandler: nil)
         votecountlabel.text = "\(movie!.vote_count)"
         descriptionlabel.text = movie?.overview
-        
+        cancelbuttonoutlet.layer.cornerRadius = 15
         // Do any additional setup after loading the view.
     }
 

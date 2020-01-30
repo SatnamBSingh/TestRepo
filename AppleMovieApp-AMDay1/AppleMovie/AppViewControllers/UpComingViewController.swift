@@ -11,6 +11,8 @@ import Kingfisher
 class UpComingViewController: UIViewController,UITableViewDelegate,UITableViewDataSource{
     
     var getMoviesArrayData = [AppleMoviesData]()
+    var movies:AppleMoviesData?
+    var movieDescription:String!
 
     @IBOutlet var upcomingtableV: UITableView!
 
@@ -25,30 +27,7 @@ class UpComingViewController: UIViewController,UITableViewDelegate,UITableViewDa
         // Do any additional setup after loading the view.
     }
 
-//    func getImage(from string: String) -> UIImage? {
-//        guard let url = URL(string: string) else {
-//            return nil
-//        }
-//        var image: UIImage? = nil
-//        do {
-//            let data = try Data(contentsOf: url, options: [])
-//            image = UIImage(data: data)
-//        }
-//        catch {
-//            print(error.localizedDescription)
-//        }
-//        return image
-//
-//    }
-    /*
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -65,6 +44,7 @@ class UpComingViewController: UIViewController,UITableViewDelegate,UITableViewDa
         cell.releasedateupcm.text = MoviestoShowinCell.release_date
         cell.popularityupcm.text = String(MoviestoShowinCell.popularity)
         cell.votecountupcm.text = String(MoviestoShowinCell.vote_count)
+        cell.selectionStyle = .none
      cell.upcomingImgView.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + MoviestoShowinCell.poster_path), placeholder: nil, options: [], progressBlock: nil, completionHandler: nil)
        // cell.upcomingImgView.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + MoviestoShowinCell.poster_path), placeholder: #imageLiteral(resourceName: "placeholder"))
 
@@ -74,5 +54,23 @@ class UpComingViewController: UIViewController,UITableViewDelegate,UITableViewDa
 //        }
 
         return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let currentcell = tableView.cellForRow(at: indexPath) as! UpcomingTableViewCell
+        let movie = getMoviesArrayData[indexPath.row]
+        movieDescription = currentcell.mvnameUpcm.text
+        movieDescription = currentcell.popularityupcm.text
+       movieDescription = currentcell.votecountupcm.text
+     //Detailsfromupcoming
+        performSegue(withIdentifier: "Detailsfromupcoming", sender: movie)
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "Detailsfromupcoming") {
+            guard let movie  = sender as? AppleMoviesData else{
+                return
+            }
+            let detailsvc =  segue.destination as! DetailsViewController
+            detailsvc.movie = movie
+        }
     }
 }

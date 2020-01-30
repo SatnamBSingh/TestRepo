@@ -13,6 +13,7 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
     var getMoviesArrayData = [AppleMoviesData]()
     var movies:AppleMoviesData?
     var positionScroll:CGFloat = 0
+    var movieDescription:String!
 
     @IBOutlet var populartableview: UITableView!
     @IBOutlet var toprtdcollectionView: UICollectionView!
@@ -23,10 +24,7 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         populartableview.dataSource = self
         toprtdcollectionView.delegate = self
         toprtdcollectionView.dataSource = self
-       // scrollHorizontal()
-       // scrollViewDidScroll(scrollView: populartableview)
 
-       
         topratedcollectionvw.JsonMoviesData.JsonURLS(Moviescateogry: "top_rated", page: 2)
         getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
         
@@ -35,17 +33,17 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         populartableview.reloadData()
         }
    
-    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
-        positionScroll = self.populartableview.contentOffset.y
-    }
-
-    func scrollViewDidScroll(scrollView: UIScrollView) {
-        if self.populartableview.contentOffset.y > self.positionScroll || self.populartableview.contentOffset.y < self.positionScroll{
-            self.populartableview.isPagingEnabled = true
-        } else{
-            self.populartableview.isPagingEnabled = false
-        }
-    }
+//    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+//        positionScroll = self.populartableview.contentOffset.x
+//    }
+//
+//    func scrollViewDidScroll(scrollView: UIScrollView) {
+//        if self.populartableview.contentOffset.y > self.positionScroll || self.populartableview.contentOffset.y < self.positionScroll{
+//            self.populartableview.isPagingEnabled = true
+//        } else{
+//            self.populartableview.isPagingEnabled = false
+//        }
+//    }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -70,14 +68,25 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         return cell
     }
     
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        //toprateddetails
-//        performSegue(withIdentifier: "toprateddetails", sender: indexPath)
-//    }
-//
-    func scrollHorizontal(){
-        
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let currentcell = collectionView.cellForItem(at: indexPath) as! TopRatedCollectionViewCell
+        let movie = getMoviesArrayData[indexPath.row]
+        movieDescription = currentcell.topratedDescriptionlbl.text
+        movieDescription = currentcell.topratedPopularitylbl.text
+        movieDescription = currentcell.topvotecountlbl.text
+        performSegue(withIdentifier: "toprateddetails", sender: movie)
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "toprateddetails") {
+            guard let movie  = sender as? AppleMoviesData else{
+                return
+            }
+            let detailsvc =  segue.destination as! DetailsViewController
+            detailsvc.movie = movie
+        }
+    }
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
@@ -95,16 +104,25 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         cell.popularitylbl.text = String(MoviestoShowinCell.popularity)
         cell.releaseddatelbl.text = MoviestoShowinCell.release_date
         cell.votecountlbl.text = String(MoviestoShowinCell.vote_count)
+        cell.selectionStyle = .none
         cell.MVImageView.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + MoviestoShowinCell.poster_path), placeholder: nil, options: [], progressBlock: nil, completionHandler: nil)
-        
+    
         return cell
         
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        performSegue(withIdentifier: "toprateddetails", sender: indexPath)
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let currentcell = tableView.cellForRow(at: indexPath) as! TopRatedTableViewCell
+        let movie = getMoviesArrayData[indexPath.row]
+        movieDescription = currentcell.movienamelbl.text
+        movieDescription = currentcell.popularitylbl.text
+        movieDescription = currentcell.votecountlbl.text
+        performSegue(withIdentifier: "toprateddetails", sender: movie)
+    }
+    
     /*
+     
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation

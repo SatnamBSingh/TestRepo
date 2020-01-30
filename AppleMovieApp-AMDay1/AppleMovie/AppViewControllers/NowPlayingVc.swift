@@ -9,72 +9,70 @@
 import UIKit
 import CoreData
 import Kingfisher
-class NowPlayingVc: UIViewController,UITableViewDelegate,UITableViewDataSource{
+class NowPlayingVc: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource{
+    
     
 
+    @IBOutlet weak var collectionviewnp: UICollectionView!
     var getMoviesArrayData = [AppleMoviesData]()
     let delegate = UIApplication.shared.delegate as! AppDelegate
     var movieDescription:String!
-    var pagenumber = 0
+    var pagenumber = 1
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
     }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return getMoviesArrayData.count
+
     }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableview.dequeueReusableCell(withIdentifier: "NowPalyingTableViewCell", for: indexPath) as! NowPalyingTableViewCell
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NowplayingCollectionViewCell", for: indexPath) as! NowplayingCollectionViewCell
         cell.layer.cornerRadius = 30
         cell.layer.masksToBounds = true
-        cell.layer.shadowColor = UIColor.lightGray.cgColor
-        cell.layer.shadowOpacity = 0.23
-        cell.layer.shadowRadius = 4
+        cell.layer.shadowColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+        cell.layer.shadowOffset = CGSize(width: 0.5, height: 0.4)
+        cell.layer.shadowOpacity = 0.5
+        cell.layer.shadowRadius = 5.0
         
         let MoviestoShowinCell = getMoviesArrayData[indexPath.row]
-        cell.moviename.text = MoviestoShowinCell.title
-        cell.descriptionlabel.text = MoviestoShowinCell.overview
-        cell.releasedlabel.text = MoviestoShowinCell.release_date
+        cell.movienamelabel.text = MoviestoShowinCell.title
+        cell.moviedescriptionlabel.text = MoviestoShowinCell.overview
+        cell.releaselabel.text = MoviestoShowinCell.release_date
         cell.ratinglabel.text = String(MoviestoShowinCell.vote_average)
         cell.votinglabel.text = String(MoviestoShowinCell.vote_count)
-        // cell.MovieImageView.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + MoviestoShowinCell.poster_path), placeholder: #imageLiteral(resourceName: "placeholder"))
-        cell.MovieImageView.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + MoviestoShowinCell.poster_path), placeholder: nil, options: [], progressBlock: nil, completionHandler: nil)
+        cell.movieimageview.kf.setImage(with: URL(string: JsonParseData.JsonMoviesData.imageurl + MoviestoShowinCell.poster_path), placeholder: nil, options: [], progressBlock: nil, completionHandler: nil)
         
         return cell
     }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         DispatchQueue.global().async {
-            if indexPath.row == self.getMoviesArrayData.count-1 {
+            if indexPath.row == self.getMoviesArrayData.count {
                 self.pagenumber = self.pagenumber + 1
                 self.getsSearchMovies(pagenumber: self.pagenumber, moviescateogry: "now_playing")
+                DispatchQueue.main.async {
+                    self.collectionviewnp.reloadData()
+                }
             }
         }
     }
-
-   func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 150
-    }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let currentcell = tableView.cellForRow(at: indexPath) as! NowPalyingTableViewCell
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let currentcell = collectionviewnp.cellForItem(at: indexPath) as! NowplayingCollectionViewCell
         let movie = getMoviesArrayData[indexPath.row]
-        movieDescription = currentcell.descriptionlabel.text
+        movieDescription = currentcell.moviedescriptionlabel.text
         performSegue(withIdentifier: "details", sender: movie)
 
     }
-    
-    @IBOutlet var tableview: UITableView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableview.delegate = self
-        tableview.dataSource = self
+        collectionviewnp.delegate = self
+        collectionviewnp.dataSource = self
         pagenumber = 1
         getsSearchMovies(pagenumber: pagenumber, moviescateogry: "now_playing")
-        // JsonParseData.JsonMoviesData.JsonURLS(Moviescateogry: "now_playing", page: self.pagenumber)
-        //        getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
         print(getMoviesArrayData)
     }
     
@@ -82,7 +80,7 @@ class NowPlayingVc: UIViewController,UITableViewDelegate,UITableViewDataSource{
         JsonParseData.JsonMoviesData.JsonURLS(Moviescateogry: moviescateogry, page: pagenumber)
         self.getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
         DispatchQueue.main.sync {
-            self.tableview.reloadData()
+            self.collectionviewnp.reloadData()
         }
     }
     
@@ -100,9 +98,25 @@ class NowPlayingVc: UIViewController,UITableViewDelegate,UITableViewDataSource{
         JsonParseData.JsonMoviesData.JsonURLS(Moviescateogry: moviescateogry, page: pagenumber)
         getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
         DispatchQueue.main.async {
-            self.tableview.reloadData()
+            self.collectionviewnp.reloadData()
         }
     }
+    
+    
+    //For Displaying Cateogry of movies
+//    enum Cateogry: CaseIterable{
+//        case NowPlaying
+//        case TopRated
+//        case Popular
+//        case UpComing
+//    }
+//
+//    var selectedCateogry = Cateogry.NowPlaying
+//    selectedCateogry = .NowPalying
+//    switch selectedCateogry{
+    //    case .NowPlaying:
+//    }
+//
     
     //Insert into coredata
     func InsertData(){

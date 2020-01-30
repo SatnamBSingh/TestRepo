@@ -14,7 +14,11 @@ class SearchViewController: UIViewController,UISearchDisplayDelegate,UISearchBar
     @IBOutlet var tableviewsearches: UITableView!
     @IBOutlet var SearchBar: UISearchBar!
     var Movies = [Searchmovies]()
+    var getMoviesArrayData = [AppleMoviesData]()
+    var movies:AppleMoviesData?
+    var movieDescription:String!
 
+    
     var searchMovies = [Searchmovies]()
     var searchActive = true
 
@@ -67,6 +71,27 @@ class SearchViewController: UIViewController,UISearchDisplayDelegate,UISearchBar
         }
         else{
             
+        }
+        
+      
+        
+    }
+    
+    func tableView(_ tableView: UITableView, didselectRowAt indexPath: IndexPath) {
+        let currentcell = tableView.cellForRow(at: indexPath) as! SearchTableViewCell
+        let movie = getMoviesArrayData[indexPath.row]
+        movieDescription = currentcell.searchpopularitylbl.text
+        movieDescription = currentcell.searchmovinmae.text
+        performSegue(withIdentifier: "detailsfromsearch", sender: movie)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "detailsfromsearch") {
+            guard let movie  = sender as? AppleMoviesData else{
+                return
+            }
+            let detailsvc =  segue.destination as! DetailsViewController
+            detailsvc.movie = movie
         }
     }
     
