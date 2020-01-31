@@ -49,12 +49,10 @@ class NowPlayingVc: UIViewController, UICollectionViewDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         DispatchQueue.global().async {
-            if indexPath.row == self.getMoviesArrayData.count {
+            if indexPath.row == self.getMoviesArrayData.count-1 {
                 self.pagenumber = self.pagenumber + 1
                 self.getsSearchMovies(pagenumber: self.pagenumber, moviescateogry: "now_playing")
-                DispatchQueue.main.async {
-                    self.collectionviewnp.reloadData()
-                }
+                
             }
         }
     }
@@ -71,19 +69,12 @@ class NowPlayingVc: UIViewController, UICollectionViewDelegate, UICollectionView
         super.viewDidLoad()
         collectionviewnp.delegate = self
         collectionviewnp.dataSource = self
-        pagenumber = 1
+        //pagenumber = 1
         getsSearchMovies(pagenumber: pagenumber, moviescateogry: "now_playing")
         print(getMoviesArrayData)
     }
     
-    func getnowplayingMovies(moviescateogry: String, pagenumber: Int){
-        JsonParseData.JsonMoviesData.JsonURLS(Moviescateogry: moviescateogry, page: pagenumber)
-        self.getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
-        DispatchQueue.main.sync {
-            self.collectionviewnp.reloadData()
-        }
-    }
-    
+    let Screenname = "NowPlaying"
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "details") {
             guard let movie  = sender as? AppleMoviesData else{
@@ -91,17 +82,17 @@ class NowPlayingVc: UIViewController, UICollectionViewDelegate, UICollectionView
             }
             let detailsvc =  segue.destination as! DetailsViewController
             detailsvc.movie = movie
+            detailsvc.GetMovieScreenname = Screenname
         }
     }
     func getsSearchMovies(pagenumber: Int, moviescateogry: String){
         
         JsonParseData.JsonMoviesData.JsonURLS(Moviescateogry: moviescateogry, page: pagenumber)
-        getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
+        getMoviesArrayData += JsonParseData.JsonMoviesData.MoviesDataArray
         DispatchQueue.main.async {
             self.collectionviewnp.reloadData()
         }
     }
-    
     
     //For Displaying Cateogry of movies
 //    enum Cateogry: CaseIterable{
@@ -117,70 +108,6 @@ class NowPlayingVc: UIViewController, UICollectionViewDelegate, UICollectionView
     //    case .NowPlaying:
 //    }
 //
-    
-    //Insert into coredata
-    func InsertData(){
-        let context = delegate.persistentContainer.viewContext
-        let moviObj:NSObject = NSEntityDescription.insertNewObject(forEntityName: "AppleMovies", into: context)
-        // moviObj.setValue(self.orginal.text, forKey: "AppleMovies")
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "AppleMovies")
-        do
-        {
-            let result = try context.fetch(request)
-            for data in result as! [NSManagedObject]
-            {
-                let populrty = data.value(forKey: "popularity") as! Double
-                let votecnt = String(data.value(forKey: "vote_count") as! Double)
-                let orgTitle = data.value(forKey: "original_title") as! String
-                let orgLang = data.value(forKey: "original_language") as! String
-                let ids = data.value(forKey: "id") as! Double
-                let img = data.value(forKey: "poster_path") as! String
-            }
-            
-            try context.save()
-            print(context)
-            readFromCoreData()
-        }
-        catch
-        {
-            print("insertion: successful")
-        }
-    }
-
-    }
-    
-    //coredata function
-    func readFromCoreData()
-    {
-        let delegate = UIApplication.shared.delegate as! AppDelegate
-
-        let context = delegate.persistentContainer.viewContext
-        
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "AppleMovies")
-        do
-        {
-            let result = try context.fetch(request)
-            for data in result as! [NSManagedObject]
-            {
-                let populrty = data.value(forKey: "popularity") as! Double
-                let votecnt = String(data.value(forKey: "vote_count") as! Double)
-                let orgTitle = data.value(forKey: "original_title") as! String
-                let orgLang = data.value(forKey: "original_language") as! String
-                let ids = data.value(forKey: "id") as! Double
-                let img = data.value(forKey: "poster_path") as! String
-            }
-//            if moviesdata.count > 0
-//            {
-//             //   UITableView.reloadData()
-//            }
-        }
-        catch
-        {
-            
-        }
-    }
-
-
     /*
     // MARK: - Navigation
 
@@ -192,3 +119,4 @@ class NowPlayingVc: UIViewController, UICollectionViewDelegate, UICollectionView
     */
     
 
+}

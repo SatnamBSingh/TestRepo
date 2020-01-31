@@ -72,14 +72,11 @@ class SearchViewController: UIViewController,UISearchDisplayDelegate,UISearchBar
         else{
             
         }
-        
-      
-        
     }
     
-    func tableView(_ tableView: UITableView, didselectRowAt indexPath: IndexPath) {
+     func tableView(_ tableView: UITableView, didselectRowAt indexPath: IndexPath){
         let currentcell = tableView.cellForRow(at: indexPath) as! SearchTableViewCell
-        let movie = getMoviesArrayData[indexPath.row]
+        let movie = searchMovies[indexPath.row]
         movieDescription = currentcell.searchpopularitylbl.text
         movieDescription = currentcell.searchmovinmae.text
         performSegue(withIdentifier: "detailsfromsearch", sender: movie)

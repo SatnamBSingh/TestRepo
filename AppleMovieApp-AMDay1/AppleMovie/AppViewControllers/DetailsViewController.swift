@@ -13,6 +13,7 @@ class DetailsViewController: UIViewController {
     var getMoviesArrayData = [AppleMoviesData]()
     var movie:AppleMoviesData?
 
+    var GetMovieScreenname:String?
     @IBOutlet weak var cancelbuttonoutlet: UIButton!
     @IBAction func cancelButton(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
@@ -35,6 +36,10 @@ class DetailsViewController: UIViewController {
         votecountlabel.text = "\(movie!.vote_count)"
         descriptionlabel.text = movie?.overview
         cancelbuttonoutlet.layer.cornerRadius = 15
+        if let receivename = GetMovieScreenname{
+            moviescateogrylbl.text = receivename
+        }
+        
         // Do any additional setup after loading the view.
     }
 

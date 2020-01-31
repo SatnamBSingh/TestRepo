@@ -14,6 +14,7 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
     var movies:AppleMoviesData?
     var positionScroll:CGFloat = 0
     var movieDescription:String!
+    var pagenumber = 1
 
     @IBOutlet var populartableview: UITableView!
     @IBOutlet var toprtdcollectionView: UICollectionView!
@@ -28,22 +29,13 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         topratedcollectionvw.JsonMoviesData.JsonURLS(Moviescateogry: "top_rated", page: 2)
         getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
         
-        jsonparsingfortoprated.JsonMoviesData.JsonURLS(Moviescateogry: "popular", page: 2)
-        getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
+//        jsonparsingfortoprated.JsonMoviesData.JsonURLS(Moviescateogry: "popular", page: 2)
+//        getMoviesArrayData = JsonParseData.JsonMoviesData.MoviesDataArray
         populartableview.reloadData()
-        }
+        pagenumber = 1
+        getsSearchMovies(pagenumber: pagenumber, moviescateogry: "now_playing")
+    }
    
-//    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
-//        positionScroll = self.populartableview.contentOffset.x
-//    }
-//
-//    func scrollViewDidScroll(scrollView: UIScrollView) {
-//        if self.populartableview.contentOffset.y > self.positionScroll || self.populartableview.contentOffset.y < self.positionScroll{
-//            self.populartableview.isPagingEnabled = true
-//        } else{
-//            self.populartableview.isPagingEnabled = false
-//        }
-//    }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -77,6 +69,15 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         performSegue(withIdentifier: "toprateddetails", sender: movie)
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 15
+    }
+    
+    let Screenname = "TopRated"
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "toprateddetails") {
             guard let movie  = sender as? AppleMoviesData else{
@@ -84,6 +85,8 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
             }
             let detailsvc =  segue.destination as! DetailsViewController
             detailsvc.movie = movie
+            detailsvc.GetMovieScreenname = Screenname
+
         }
     }
 
@@ -121,15 +124,35 @@ class TopRatedViewController: UIViewController,UITableViewDelegate,UITableViewDa
         performSegue(withIdentifier: "toprateddetails", sender: movie)
     }
     
-    /*
-     
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        DispatchQueue.global().async {
+            if indexPath.row == self.getMoviesArrayData.count-1 {
+                self.pagenumber = self.pagenumber + 1
+                self.getsSearchMovies(pagenumber: self.pagenumber, moviescateogry: "now_playing")
+                
+            }
+        }
     }
-    */
+    func getsSearchMovies(pagenumber: Int, moviescateogry: String){
+        
+        JsonParseData.JsonMoviesData.JsonURLS(Moviescateogry: moviescateogry, page: pagenumber)
+        getMoviesArrayData += JsonParseData.JsonMoviesData.MoviesDataArray
+        DispatchQueue.main.async {
+            self.populartableview.reloadData()
+        }
+    }
+}
+extension TopRatedViewController:UIScrollViewDelegate{
 
+    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+        positionScroll = self.populartableview.contentOffset.y
+    }
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if self.populartableview.contentOffset.y > self.positionScroll || self.populartableview.contentOffset.y < self.positionScroll{
+            self.populartableview.isPagingEnabled = true
+        } else{
+            self.populartableview.isPagingEnabled = false
+        }
+    }
 }
